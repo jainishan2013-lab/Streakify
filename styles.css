@@ -1,0 +1,335 @@
+h1 {
+    color: #ff2d37;
+    font-size: 48px;
+    text-align: center;
+    font-family: "Bebas Neue";
+    margin: 30px;
+    letter-spacing: 2px;
+    font-weight: 400;
+    margin-bottom: 20px;
+}
+
+
+.big-logo {
+    color: #ff2d37;
+    font-size: 110px;
+    text-align: center;
+    font-family: "Bebas Neue";
+    margin: 30px;
+    letter-spacing: 2px;
+    font-weight: 400;
+    margin-bottom: 20px;
+}
+
+
+
+
+body {
+    background-color: #13151B;
+    color: #F5F5F5;
+    font-family: Arial;
+    margin: 0;
+    min-height: 100vh;
+    line-height: 1.5;
+}
+
+
+header {
+    height: 60px;
+    background-color: #191b23;
+    border-bottom: 1px solid #282a32;
+    align-items: center;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 55px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+
+main {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+
+.habits {
+    background-color: #191B23;
+    padding: 30px;
+    border: 1px solid #282A32;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    max-width: 450px;
+    margin: 40px auto;
+}
+
+
+.habit-card {
+    background-color: #13151B;
+    padding: 15px;
+    margin-bottom: 15px;
+    border: 1px solid #282A32;
+    border-radius: 8px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+
+.logo {
+    color: #ff2d37;
+    font-family: "Bebas Neue", sans-serif;
+    font-size: 30px;
+    letter-spacing: 1px;
+    text-align: left;
+}
+
+
+h2 {
+    font-size: 24px;
+    font-weight: 400;
+    color: #eeeeee;
+    text-align: center;
+    margin: 0 0 18px 0;
+}
+
+
+h3 {
+    font-size: 15px;
+    color: #AEB0B8;
+    text-align: center;
+    margin: 0 0 18px 0;
+    font-weight: 400;
+}
+
+
+button {
+    background-color: #ff3039;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 13px 42px;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    display: block;
+    margin: 30px auto;
+    transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+
+button:hover {
+    transform: translateY(-3px);
+}
+
+
+.h1-img {
+    color: #ffffff;
+    font-size: 40px;
+    text-align: center;
+    font-family: "Bebas Neue";
+    margin: 30px;
+    letter-spacing: 2px;
+    font-weight: 400;
+    margin-bottom: 20px;
+}
+
+
+.h4-1 {
+    font-size: 18px;
+    font-weight: 400;
+    color: #eeeeee;
+    text-align: left;
+    margin: 0 0 18px 0;
+}
+
+
+/* FEATURES */
+
+
+.features {
+    display: flex;
+    justify-content: space-between;
+
+
+    gap: 40px;
+
+
+    margin-bottom: 100px;
+}
+
+
+.feature {
+    flex: 1;
+    text-align: center;
+}
+
+
+.feature-icon {
+    color: #ff3039;
+
+
+    font-size: 35px;
+
+
+    height: 50px;
+
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+
+    margin-bottom: 10px;
+}
+
+
+.feature h3 {
+    font-size: 15px;
+
+
+    margin: 0 0 5px 0;
+
+
+    color: #eeeeee;
+}
+
+
+.feature p {
+    color: #9699a3;
+
+
+    font-size: 13px;
+
+
+    margin: 0;
+}
+
+
+.login {
+    color: #ffffff;
+    font-family: "Arial";
+    font-size: 25px;
+    letter-spacing: 1px;
+    text-align: left;
+}
+
+
+/* TRACKER */
+
+
+.tracker {
+    background-color: #191b23;
+    border: 1px solid #282a32;
+    border-radius: 10px;
+    padding: 30px;
+    margin-bottom: 80px;
+}
+
+
+.tracker-header {
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+
+.tracker-header h2 {
+    color: white;
+    margin: 0 0 5px 0;
+    font-size: 28px;
+}
+
+
+.tracker-header p {
+    color: #9699a3;
+
+
+    margin: 0;
+
+
+    font-size: 14px;
+}
+
+
+nav {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    white-space: nowrap;
+    gap: 32px;
+}
+
+
+.home {
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: 400;
+    text-decoration: none;
+    font-family: Arial, sans-serif;
+    display: inline;
+}
+
+
+.login-register {
+    color: #cfcaca;
+    font-size: 15px;
+    font-weight: 400;
+    text-decoration: none;
+    font-family: Arial, sans-serif;
+    display: inline;
+}
+
+
+.login-logo {
+    color: #ff2d37;
+    font-family: "Bebas Neue", sans-serif;
+    font-size: 30px;
+    letter-spacing: 1px;
+    text-align: left;
+}
+
+
+.form-group input:focus {
+    border-color: #ff2d37;
+    outline: none;
+}
+
+
+input {
+
+
+    padding: 10px;
+    font-size: 16px;
+    caret-color: #c73044;
+    border: 1px solid #282A32;
+    background-color: #13151B;
+    border-radius: 4px;
+    color: white;
+    border-color: grey;
+    max-width: 300px;
+    width: 100%;
+}
+
+
+input::placeholder {
+    color: red;
+    opacity: 1;
+}
+
+
+input:focus {
+    color: white;
+    caret-color: white;
+    border: 1.5px solid #c73044;
+    outline: none;
+}
+
+
+username-password-text {
+    font-size: 15px;
+    color: #AEB0B8;
+    text-align: center;
+    margin: 0 0 18px 0;
+    font-weight: 400;
+}
