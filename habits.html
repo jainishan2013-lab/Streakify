@@ -1,34 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
 
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
-
-
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
-
-
     <link href="styles.css" rel="stylesheet">
-
-
     <title>Habits - Streakify</title>
 </head>
-
-
 <body>
-
-
     <header>
-        <div class="logo">
-            STREAKIFY
-        </div>
-
-
+        <a href="index.html" class="logo">STREAKIFY</a>
         <nav>
             <a href="index.html" class="home">Home</a>
             <a href="login.html" class="login-register">Login</a>
@@ -36,31 +19,42 @@
         </nav>
     </header>
 
-
     <main>
-
-
         <div class="habits">
-
-
             <h2>My Habits</h2>
-
-
             <h3>Track your habits and keep your streaks going.</h3>
 
+            <!-- 1. Wrapped inputs inside a <form> with the correct ID -->
+            <form id="myForm">
+            <div class="form-group">
+            <username-password-text>Habit name<br></username-password-text>
+            <input type="text" id="habitName" autocomplete="off">
+                    <!-- Added a 'name' attribute so JavaScript can read it easily -->
+                </div>
 
-            <a href="habits.html" class="d-flex justify-content-center" style="text-decoration: none;"><button class="btn btn-danger">Add Habit</button></a>
-
-
-
-
+                <!-- 2. Replaced the <a> tag with a proper submit button inside the form -->
+                <div class="d-flex justify-content-center">
+                    <button type="submit" class="btn btn-danger">Add Habit</button>
+                </div>
+            </form>
         </div>
-
-
     </main>
 
+    <script>
+        // JavaScript Implementation
+        const form = document.getElementById("myForm");
 
+        form.addEventListener("submit", function(event) {
+            // Stops the page from resetting immediately
+            event.preventDefault();
+
+            // Grabbing input values using the 'name' attribute
+            const habitValue = event.target.elements.habitName.value;
+            console.log("Submitted Habit:", habitValue);
+
+            // Redirects to the completion page after form submission
+            window.location.href = "complete-streak.html";
+        });
+    </script>
 </body>
-
-
 </html>
