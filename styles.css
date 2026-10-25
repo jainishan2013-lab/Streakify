@@ -9,7 +9,6 @@ h1 {
     margin-bottom: 20px;
 }
 
-
 .big-logo {
     color: #ff2d37;
     font-size: 110px;
@@ -21,9 +20,6 @@ h1 {
     margin-bottom: 20px;
 }
 
-
-
-
 body {
     background-color: #13151B;
     color: #F5F5F5;
@@ -32,6 +28,8 @@ body {
     min-height: 100vh;
     line-height: 1.5;
 }
+
+
 
 
 header {
@@ -49,11 +47,15 @@ header {
 }
 
 
+
+
 main {
     max-width: 900px;
     margin: 0 auto;
     padding: 20px;
 }
+
+
 
 
 .habits {
@@ -67,6 +69,8 @@ main {
 }
 
 
+
+
 .habit-card {
     background-color: #13151B;
     padding: 15px;
@@ -74,15 +78,6 @@ main {
     border: 1px solid #282A32;
     border-radius: 8px;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
-}
-
-
-.logo {
-    color: #ff2d37;
-    font-family: "Bebas Neue", sans-serif;
-    font-size: 30px;
-    letter-spacing: 1px;
-    text-align: left;
 }
 
 
@@ -95,6 +90,8 @@ h2 {
 }
 
 
+
+
 h3 {
     font-size: 15px;
     color: #AEB0B8;
@@ -102,6 +99,8 @@ h3 {
     margin: 0 0 18px 0;
     font-weight: 400;
 }
+
+
 
 
 button {
@@ -119,9 +118,13 @@ button {
 }
 
 
+
+
 button:hover {
     transform: translateY(-3px);
 }
+
+
 
 
 .h1-img {
@@ -136,6 +139,8 @@ button:hover {
 }
 
 
+
+
 .h4-1 {
     font-size: 18px;
     font-weight: 400;
@@ -145,7 +150,11 @@ button:hover {
 }
 
 
+
+
 /* FEATURES */
+
+
 
 
 .features {
@@ -153,11 +162,17 @@ button:hover {
     justify-content: space-between;
 
 
+
+
     gap: 40px;
+
+
 
 
     margin-bottom: 100px;
 }
+
+
 
 
 .feature {
@@ -166,14 +181,22 @@ button:hover {
 }
 
 
+
+
 .feature-icon {
     color: #ff3039;
+
+
 
 
     font-size: 35px;
 
 
+
+
     height: 50px;
+
+
 
 
     display: flex;
@@ -181,30 +204,46 @@ button:hover {
     justify-content: center;
 
 
+
+
     margin-bottom: 10px;
 }
+
+
 
 
 .feature h3 {
     font-size: 15px;
 
 
+
+
     margin: 0 0 5px 0;
+
+
 
 
     color: #eeeeee;
 }
 
 
+
+
 .feature p {
     color: #9699a3;
+
+
 
 
     font-size: 13px;
 
 
+
+
     margin: 0;
 }
+
+
 
 
 .login {
@@ -216,7 +255,11 @@ button:hover {
 }
 
 
+
+
 /* TRACKER */
+
+
 
 
 .tracker {
@@ -228,10 +271,14 @@ button:hover {
 }
 
 
+
+
 .tracker-header {
     text-align: center;
     margin-bottom: 25px;
 }
+
+
 
 
 .tracker-header h2 {
@@ -241,15 +288,23 @@ button:hover {
 }
 
 
+
+
 .tracker-header p {
     color: #9699a3;
+
+
 
 
     margin: 0;
 
 
+
+
     font-size: 14px;
 }
+
+
 
 
 nav {
@@ -259,6 +314,8 @@ nav {
     white-space: nowrap;
     gap: 32px;
 }
+
+
 
 
 .home {
@@ -271,6 +328,8 @@ nav {
 }
 
 
+
+
 .login-register {
     color: #cfcaca;
     font-size: 15px;
@@ -279,6 +338,8 @@ nav {
     font-family: Arial, sans-serif;
     display: inline;
 }
+
+
 
 
 .login-logo {
@@ -290,13 +351,19 @@ nav {
 }
 
 
+
+
 .form-group input:focus {
     border-color: #ff2d37;
     outline: none;
 }
 
 
+
+
 input {
+
+
 
 
     padding: 10px;
@@ -312,10 +379,14 @@ input {
 }
 
 
+
+
 input::placeholder {
     color: red;
     opacity: 1;
 }
+
+
 
 
 input:focus {
@@ -326,10 +397,28 @@ input:focus {
 }
 
 
+
+
 username-password-text {
     font-size: 15px;
     color: #AEB0B8;
     text-align: center;
     margin: 0 0 18px 0;
     font-weight: 400;
+}
+/* --- FIXED NAV TAB ACTIVE CONFIGURATION --- */
+.logo {
+    color: #ff2d37;
+    font-family: "Bebas Neue", sans-serif;
+    font-size: 30px;
+    letter-spacing: 1px;
+    text-decoration: none;
+    text-align: left;
+}
+
+
+/* This targets the navigation links when they are set to active */
+.login-register.active, .home.active {
+    color: #ffffff !important;
+    font-weight: 700 !important;
 }
