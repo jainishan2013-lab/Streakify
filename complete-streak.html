@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+        <script src="https://code.jquery.com/jquery-4.0.0.js" integrity="sha256-9fsHeVnKBvqh3FB2HYu7g2xseAZ5MlN6Kz/qnkASV8U=" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+        <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap" rel="stylesheet">
+        <link href="styles.css" rel="stylesheet">
+        <title>STREAKIFY</title>
+    </head>
+    <body>
+        <header>
+            <a href="index.html" class="logo">STREAKIFY</a>
+            <nav>
+                <a href="index.html" class="home">Home</a>
+                <a href="login.html" class="login-register">Login</a>
+                <a href="register.html" class="login-register">Register</a>
+            </nav>
+        </header>
+<style>
+/* ===================== COMPONENT ===================== */
+.streak {
+  --streak-muted: #a39cc8;
+  display: flex; flex-direction: column; align-items: center;
+  user-select: none; -webkit-user-select: none;
+  font-family: "Nunito", system-ui, sans-serif;
+}
+.streak-badge { position: relative; width: 200px; height: 200px; }
+.streak-fx {
+  position: absolute; left: 50%; top: 50%; width: 640px; height: 640px;
+  transform: translate(-50%, -50%); pointer-events: none; z-index: 5;
+}
+.streak-wave {
+  position: absolute; inset: 20px; border-radius: 50%;
+  border: 4px solid #ffb02e; opacity: 0; pointer-events: none;
+}
+.streak-flash {
+  position: absolute; inset: 0; border-radius: 50%; opacity: 0; pointer-events: none; z-index: 4;
+  background: radial-gradient(circle, #fff 0%, rgba(255,236,190,.85) 28%, rgba(255,170,60,0) 70%);
+}
+.flame-glow {
+  position: absolute; inset: 30px; border-radius: 50%; opacity: .45; z-index: 1;
+  background: radial-gradient(circle at 50% 62%, #ff8a1f 0%, rgba(255,90,20,0) 68%);
+  filter: blur(12px); transition: opacity .6s ease;
+}
+.flame-shake { position: absolute; inset: 20px; z-index: 2; }
+.flame-wrap { width: 100%; height: 100%; transform-origin: 50% 60%; }
+.flame {
+  display: block; width: 100%; height: 100%; overflow: visible;
+  filter: drop-shadow(0 8px 24px rgba(255,110,20,.6));
+  transition: filter .6s ease, opacity .6s ease;
+}
+.flame .body { transform-box: fill-box; transform-origin: 50% 100%; animation: streakSway 2.6s ease-in-out infinite; }
+.flame .mid  { transform-box: fill-box; transform-origin: 50% 100%; animation: streakFlick 1.3s ease-in-out infinite; }
+.flame .core { transform-box: fill-box; transform-origin: 50% 100%; animation: streakFlick .9s ease-in-out infinite reverse; }
+.crack-glow, .crack-line {
+  fill: none; stroke-linecap: round; stroke-linejoin: round;
+  stroke-dasharray: 1; stroke-dashoffset: 1; opacity: 0;
+}
+.crack-glow { stroke: #fff3b0; stroke-width: 7; }
+.crack-line { stroke: #ffffff; stroke-width: 2.4; }
+.streak.is-zero .flame { filter: saturate(.15) brightness(.8); opacity: .55; }
+.streak.is-zero .flame-glow { opacity: .1; }
+
+.streak-reveal { display: flex; flex-direction: column; align-items: center; margin-top: 8px; min-height: 104px; }
+.streak-count {
+  font-size: 64px; font-weight: 900; line-height: 1.2; height: 1.2em;
+  display: flex; justify-content: center; white-space: nowrap; max-width: 92vw;
+  font-variant-numeric: tabular-nums;
+  filter: drop-shadow(0 4px 18px rgba(255,120,20,.55));
+  transition: opacity .3s ease;
+}
+.streak-count span {
+  display: inline-block;
+  background: linear-gradient(180deg, #ffe066 0%, #ff9f1c 55%, #ff5a1f 100%);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.streak-label {
+  margin-top: -2px; font-size: 18px; font-weight: 800; letter-spacing: .02em;
+  color: var(--streak-muted); transition: opacity .3s ease;
+}
+.streak.is-hidden .streak-count, .streak.is-hidden .streak-label,
+.streak.is-playing .streak-count, .streak.is-playing .streak-label { opacity: 0; }
+.streak-toast {
+  height: 30px; margin-top: 6px; font-size: 18px; font-weight: 900;
+  color: #ffb02e; opacity: 0; white-space: nowrap;
+}
+.streak-rain { position: fixed; inset: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 9999; }
+.streak-sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+
+@keyframes streakSway  { 0%,100% { transform: skewX(0deg) scaleY(1); } 25% { transform: skewX(-3deg) scaleY(1.03); } 75% { transform: skewX(3deg) scaleY(.98); } }
+@keyframes streakFlick { 0%,100% { transform: scale(1,1); } 30% { transform: scale(.95,1.09); } 60% { transform: scale(1.04,.94); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .flame .body, .flame .mid, .flame .core { animation: none; }
+}
+/* =================== END COMPONENT =================== */
+
+/* Page */
+* { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    background: #13151B;
+    font-family: "Nunito", system-ui, sans-serif;
+    overflow-x: hidden;
+}
+
+.page { display: flex; flex-direction: column; align-items: center; gap: 24px; padding: 40px 16px; }
+.complete {
+  font: inherit; font-weight: 900; font-size: 20px; letter-spacing: .03em; color: #fff;
+  cursor: pointer; border: 0; border-radius: 18px; padding: 16px 56px;
+  background: linear-gradient(180deg, #ffad33, #ff6a1a);
+  box-shadow: 0 6px 0 #c2410c, 0 10px 30px rgba(255,106,26,.35);
+  transition: transform .08s, box-shadow .08s, opacity .2s, filter .2s;
+}
+.complete:hover { filter: brightness(1.06); }
+.complete:active { transform: translateY(6px); box-shadow: 0 0 0 #c2410c, 0 4px 14px rgba(255,106,26,.3); }
+.complete:disabled { opacity: .45; cursor: default; filter: none; }
+.complete:focus-visible { outline: 3px solid #ffe066; outline-offset: 4px; }
+</style>
+</head>
+<body>
+<main class="page">
+  <div id="streak"></div>
+  <button id="complete" class="complete">Complete</button>
+</main>
+
+<script>
+
+  function getMostRecent12PM() {
+  const now = new Date();
+  const target = new Date();
+
+  // Set to today at 12:00:00
+  target.setHours(12, 0, 0, 0);
+
+  // If current time is BEFORE 12:00 PM today,
+  // the most recent 12:00 PM milestone was actually YESTERDAY.
+  if (now < target) {
+    target.setDate(target.getDate() - 1);
+  }
+
+  return target.getTime(); // returns timestamp
+}
+
+function tryToExecuteTask() {
+  const lastRun = localStorage.getItem('last_executed_time');
+  const recent12PM = getMostRecent12PM();
+
+  // If there's a record, and it happened AFTER the most recent 12:00 PM, block it.
+  if (lastRun && parseInt(lastRun) >= recent12PM) {
+    console.log("Hold on! You already ran this today. Next reset is at 12:00 PM.");
+    return false;
+  }
+
+  // --- PLACE YOUR CODE TO RUN HERE ---
+  console.log("Action successfully executed!");
+
+
+  // Save the current timestamp as the new last-run execution time
+  localStorage.setItem('last_executed_time', Date.now().toString());
+  return true;
+}
+
+// Example usage: Bind this to a button click or an event trigger
+// tryToExecuteTask();
+
+/* ===================== COMPONENT ===================== */
+(function () {
+  const TAU = Math.PI * 2;
+  const BASE = [3, 7, 14, 30, 50, 100, 150, 200, 365, 500, 750, 1000].map(BigInt);
+  const FIRE = ['#ff5a1f', '#ff9f1c', '#ffc93c', '#fff4c2'];
+  const FLOWER_COLORS = ['#ffd1e8', '#ffb3c7', '#fff1a8', '#d4c4ff', '#b5f2e3', '#ffffff', '#ffb056'];
+
+  // Flame shapes (viewBox 0 0 100 120)
+  const OUTER = 'M50 116 C24 116 10 96 12 74 C14 54 28 44 30 26 C40 36 42 46 40 56 C48 44 54 26 50 4 C70 18 88 42 88 72 C88 98 74 116 50 116 Z';
+  const MID   = 'M50 110 C34 110 26 98 27 84 C28 70 38 64 40 52 C46 60 47 68 46 74 C52 66 56 56 56 44 C68 56 74 70 74 86 C74 100 64 110 50 110 Z';
+  const CORE  = 'M50 106 C42 106 37 100 38 92 C39 84 46 80 48 72 C54 80 62 86 62 94 C62 101 57 106 50 106 Z';
+  const CRACKS = [
+    'M50 64 L45 72 L49 79 L41 90',
+    'M50 64 L57 70 L54 77 L63 86',
+    'M50 64 L48 54 L55 44 L56 32',
+    'M45 72 L35 73 L27 81',
+    'M57 70 L67 63 L76 67',
+    'M49 79 L55 89 L50 102',
+    'M55 44 L63 40',
+    'M41 90 L33 98',
+  ];
+  const CRACK_START = CRACKS.map(d => d.match(/M(\d+) (\d+)/).slice(1).map(Number));
+
+  const fmt = (n) => n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+  const len = (n) => n.toString().length;
+  const wait = (ms) => new Promise(r => setTimeout(r, ms));
+  function prevMilestone(n) {
+    if (n < 1000n) { let p = 0n; for (const m of BASE) if (m <= n) p = m; return p; }
+    const step = 10n ** BigInt(len(n) - 1); return (n / step) * step;
+  }
+  function nextMilestone(n) {
+    if (n < 1000n) { for (const m of BASE) if (m > n) return m; }
+    const step = 10n ** BigInt(len(n) - 1); return (n / step + 1n) * step;
+  }
+
+  /* ---------- falling flowers (one full-screen layer shared by every streak) ---------- */
+  const Rain = (() => {
+    let c, ctx, W = 0, Hh = 0, items = [], raf = 0, last = 0;
+    function ensure() {
+      if (c) return;
+      c = document.createElement('canvas'); c.className = 'streak-rain'; c.setAttribute('aria-hidden', 'true');
+      document.body.appendChild(c); ctx = c.getContext('2d');
+      resize(); window.addEventListener('resize', resize);
+    }
+    function resize() {
+      const d = Math.min(window.devicePixelRatio || 1, 2);
+      W = window.innerWidth; Hh = window.innerHeight;
+      c.width = W * d; c.height = Hh * d; ctx.setTransform(d, 0, 0, d, 0, 0);
+    }
+    function spawn(n) {
+      ensure();
+      for (let i = 0; i < n; i++) {
+        const flower = Math.random() < .65;
+        items.push({
+          x: Math.random() * W, y: -30 - Math.random() * Hh * .6,
+          vy: 1.6 + Math.random() * 2.2,
+          size: flower ? 10 + Math.random() * 10 : 7 + Math.random() * 6,
+          kind: flower ? 'flower' : 'petal', petals: Math.random() < .3 ? 6 : 5,
+          color: FLOWER_COLORS[(Math.random() * FLOWER_COLORS.length) | 0],
+          center: Math.random() < .5 ? '#ffd54a' : '#fff6d6',
+          rot: Math.random() * TAU, spin: (Math.random() - .5) * .08,
+          sway: .6 + Math.random() * 1.4, freq: .02 + Math.random() * .03, phase: Math.random() * TAU,
+          flip: Math.random() * TAU, flipV: .04 + Math.random() * .06, t: 0,
+        });
+      }
+      if (items.length > 700) items.splice(0, items.length - 700);
+      if (!raf) { last = performance.now(); raf = requestAnimationFrame(tick); }
+    }
+    function draw(f) {
+      ctx.save(); ctx.translate(f.x, f.y); ctx.rotate(f.rot);
+      ctx.scale(1, .35 + .65 * Math.abs(Math.cos(f.flip))); // flutter
+      ctx.fillStyle = f.color;
+      if (f.kind === 'petal') {
+        ctx.beginPath(); ctx.ellipse(0, 0, f.size * .55, f.size * .3, 0, 0, TAU); ctx.fill();
+      } else {
+        for (let p = 0; p < f.petals; p++) {
+          const a = p / f.petals * TAU;
+          ctx.beginPath(); ctx.ellipse(Math.cos(a) * f.size * .5, Math.sin(a) * f.size * .5, f.size * .46, f.size * .3, a, 0, TAU); ctx.fill();
+        }
+        ctx.fillStyle = f.center; ctx.beginPath(); ctx.arc(0, 0, f.size * .26, 0, TAU); ctx.fill();
+      }
+      ctx.restore();
+    }
+    function tick(now) {
+      const dt = Math.min(3, (now - last) / 16.67); last = now;
+      ctx.clearRect(0, 0, W, Hh);
+      for (let i = items.length - 1; i >= 0; i--) {
+        const f = items[i];
+        f.t += dt; f.y += f.vy * dt; f.x += Math.sin(f.t * f.freq + f.phase) * f.sway * dt;
+        f.rot += f.spin * dt; f.flip += f.flipV * dt;
+        if (f.y > Hh + 40) { items.splice(i, 1); continue; }
+        draw(f);
+      }
+      raf = items.length ? requestAnimationFrame(tick) : 0;
+    }
+    return { spawn };
+  })();
+
+  let uid = 0;
+  function create(root, opts = {}) {
+    const id = 'streakify' + (++uid);
+    const reduce = !!(window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches);
+    root.classList.add('streak');
+    root.innerHTML = `
+      <div class="streak-badge">
+        <div class="streak-wave"></div>
+        <div class="flame-glow"></div>
+        <div class="flame-shake"><div class="flame-wrap">
+          <svg class="flame" viewBox="0 0 100 120" aria-hidden="true">
+            <defs>
+              <linearGradient id="${id}o" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#ff3d14"/><stop offset=".55" stop-color="#ff6a1a"/><stop offset="1" stop-color="#ff9f1c"/></linearGradient>
+              <linearGradient id="${id}m" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#ff9f1c"/><stop offset="1" stop-color="#ffc93c"/></linearGradient>
+              <linearGradient id="${id}c" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#ffe680"/><stop offset="1" stop-color="#fff8dc"/></linearGradient>
+              <clipPath id="${id}clip"><path d="${OUTER}"/></clipPath>
+              <filter id="${id}blur" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="2.2"/></filter>
+            </defs>
+            <g class="body">
+              <path d="${OUTER}" fill="url(#${id}o)"/>
+              <path class="mid" d="${MID}" fill="url(#${id}m)"/>
+              <path class="core" d="${CORE}" fill="url(#${id}c)"/>
+              <g clip-path="url(#${id}clip)">
+                <g filter="url(#${id}blur)">${CRACKS.map(d => `<path class="crack-glow" pathLength="1" d="${d}"/>`).join('')}</g>
+                ${CRACKS.map(d => `<path class="crack-line" pathLength="1" d="${d}"/>`).join('')}
+              </g>
+            </g>
+          </svg>
+        </div></div>
+        <div class="streak-flash"></div>
+        <canvas class="streak-fx"></canvas>
+      </div>
+      <div class="streak-reveal">
+        <div class="streak-count"></div>
+        <div class="streak-label">day streak</div>
+      </div>
+      <div class="streak-toast"></div>
+      <span class="streak-sr" aria-live="polite"></span>`;
+
+    const $ = (s) => root.querySelector(s);
+    const canvas = $('.streak-fx'), wave = $('.streak-wave'), flash = $('.streak-flash');
+    const glow = $('.flame-glow'), shake = $('.flame-shake'), wrap = $('.flame-wrap'), flameSvg = $('.flame');
+    const countEl = $('.streak-count'), toast = $('.streak-toast'), sr = $('.streak-sr');
+    const crackGlows = [...root.querySelectorAll('.crack-glow')];
+    const crackLines = [...root.querySelectorAll('.crack-line')];
+
+    /* ---------- state + number ---------- */
+    function setState(s) {
+      root.classList.toggle('is-hidden', s === 'hidden');
+      root.classList.toggle('is-playing', s === 'playing');
+    }
+    function renderCount(n, animate) {
+      const s = fmt(n);
+      root.classList.toggle('is-zero', n === 0n);
+      countEl.textContent = '';
+      const spans = [...s].map(ch => { const e = document.createElement('span'); e.textContent = ch; countEl.appendChild(e); return e; });
+      const room = Math.min(window.innerWidth * 0.9, 640);
+      countEl.style.fontSize = Math.max(14, Math.min(64, room / (s.length * 0.62))) + 'px';
+      sr.textContent = `${s} day streak`;
+      if (animate && !reduce) {
+        spans.forEach((e, i) => e.animate([
+          { transform: 'translateY(-90%) scale(.2) rotate(-25deg)', opacity: 0 },
+          { transform: 'translateY(10%) scale(1.3) rotate(6deg)', opacity: 1, offset: .55 },
+          { transform: 'translateY(-4%) scale(.95) rotate(-2deg)', opacity: 1, offset: .8 },
+          { transform: 'none', opacity: 1 },
+        ], { duration: 620, delay: Math.min(i, 12) * 70, easing: 'cubic-bezier(.3,1.2,.5,1)', fill: 'backwards' }));
+      }
+    }
+
+    /* ---------- sparks, embers and flame shards ---------- */
+    const S = 640, fx = canvas.getContext('2d');
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    canvas.width = S * dpr; canvas.height = S * dpr; fx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    let parts = [], raf = 0;
+    function mapPoint(x, y) { // flame SVG coords → canvas coords (follows the flame as it moves)
+      const m = flameSvg.getScreenCTM(), r = canvas.getBoundingClientRect();
+      if (!m || !r.width) return { x: S / 2, y: S / 2 };
+      const p = new DOMPoint(x, y).matrixTransform(m);
+      return { x: (p.x - r.left) * S / r.width, y: (p.y - r.top) * S / r.height };
+    }
+    function burst(x, y, count, colors, o = {}) {
+      if (reduce) return;
+      const power = o.power || 1, kinds = o.kinds || ['spark', 'dot'];
+      for (let i = 0; i < count; i++) {
+        const ang = Math.random() * TAU, sp = (1.5 + Math.random() * 5) * power;
+        const kind = kinds[(Math.random() * kinds.length) | 0];
+        parts.push({
+          x, y, vx: Math.cos(ang) * sp, vy: Math.sin(ang) * sp - 1.4 * power,
+          life: 0, max: (kind === 'shard' ? 60 : 38) + Math.random() * 30,
+          size: kind === 'shard' ? 3 + Math.random() * 5 : 1.5 + Math.random() * 2.8,
+          rot: Math.random() * TAU, vr: (Math.random() - .5) * .4,
+          color: colors[i % colors.length], kind,
+        });
+      }
+      if (parts.length > 900) parts.splice(0, parts.length - 900);
+      if (!raf) raf = requestAnimationFrame(tick);
+    }
+    function tick() {
+      fx.clearRect(0, 0, S, S);
+      for (let i = parts.length - 1; i >= 0; i--) {
+        const p = parts[i];
+        p.life++; p.vx *= .965; p.vy = p.vy * .965 + .14; p.x += p.vx; p.y += p.vy; p.rot += p.vr;
+        const a = 1 - p.life / p.max;
+        if (a <= 0) { parts.splice(i, 1); continue; }
+        fx.globalAlpha = a; fx.fillStyle = fx.strokeStyle = p.color;
+        if (p.kind === 'spark') {
+          fx.lineWidth = p.size * .8; fx.lineCap = 'round';
+          fx.beginPath(); fx.moveTo(p.x, p.y); fx.lineTo(p.x - p.vx * 3, p.y - p.vy * 3); fx.stroke();
+        } else if (p.kind === 'shard') {
+          fx.save(); fx.translate(p.x, p.y); fx.rotate(p.rot);
+          fx.beginPath(); fx.moveTo(0, -p.size * 1.6); fx.lineTo(p.size, p.size); fx.lineTo(-p.size, p.size * .6);
+          fx.closePath(); fx.fill(); fx.restore();
+        } else {
+          fx.beginPath(); fx.arc(p.x, p.y, p.size * a + .5, 0, TAU); fx.fill();
+        }
+      }
+      fx.globalAlpha = 1;
+      raf = parts.length ? requestAnimationFrame(tick) : 0;
+    }
+
+    function jitter(n, from, to, rotScale = .6) { // random shake keyframes, growing from → to px
+      const f = [{ transform: 'translate(0px,0px) rotate(0deg)' }];
+      for (let i = 1; i <= n; i++) {
+        const a = from + (to - from) * Math.pow(i / n, 2);
+        const r = () => (Math.random() * 2 - 1) * a;
+        f.push({ transform: `translate(${r().toFixed(2)}px,${(r() * .6).toFixed(2)}px) rotate(${(r() * rotScale).toFixed(2)}deg)` });
+      }
+      f.push({ transform: 'translate(0px,0px) rotate(0deg)' });
+      return f;
+    }
+    function showToast(text) {
+      toast.textContent = text;
+      if (reduce) { toast.style.opacity = 1; setTimeout(() => toast.style.opacity = 0, 2000); return; }
+      toast.animate([
+        { opacity: 0, transform: 'translateY(10px) scale(.7)' },
+        { opacity: 1, transform: 'translateY(0) scale(1.15)', offset: .1 },
+        { opacity: 1, transform: 'translateY(0) scale(1)', offset: .18 },
+        { opacity: 1, transform: 'translateY(0) scale(1)', offset: .85 },
+        { opacity: 0, transform: 'translateY(-6px) scale(.95)' },
+      ], { duration: 2800, easing: 'ease-out' });
+    }
+
+    /* ---------- crack → spin → drop → explode → flowers → reveal ---------- */
+    const DROP = 52; // px the flame falls before it explodes
+    async function sequence(next, milestone) {
+      const live = [];
+      setState('playing');                                         // number hidden
+      root.classList.remove('is-zero');                            // flame lights up
+      await wait(250);
+
+      // 1. crack
+      const crackDur = 1800, n = CRACKS.length;
+      live.push(glow.animate([{ opacity: .45, transform: 'scale(1)' }, { opacity: 1, transform: 'scale(1.5)' }],
+        { duration: crackDur, easing: 'ease-in', fill: 'forwards' }));
+      const tremble = shake.animate(jitter(48, .8, 7), { duration: crackDur, fill: 'forwards' });
+      live.push(tremble);
+      for (let i = 0; i < n; i++) {
+        const kf = [{ strokeDashoffset: 1, opacity: 0 }, { strokeDashoffset: .92, opacity: 1, offset: .08 }, { strokeDashoffset: 0, opacity: 1 }];
+        live.push(crackGlows[i].animate(kf, { duration: 320, easing: 'ease-out', fill: 'forwards' }));
+        live.push(crackLines[i].animate(kf, { duration: 240, easing: 'ease-out', fill: 'forwards' }));
+        const s = mapPoint(CRACK_START[i][0], CRACK_START[i][1]);
+        burst(s.x, s.y, 6 + i * 2, FIRE.concat('#ffffff'), { power: .9 });
+        wrap.animate([{ transform: 'scale(1)' }, { transform: `scale(${1 - .015 * (i + 1)},${1 + .012 * (i + 1)})` }, { transform: 'scale(1)' }],
+          { duration: 150, easing: 'ease-out' });
+        await wait(crackDur / n);
+      }
+      tremble.cancel();
+
+      // 2. spin a few times, hang, then drop
+      const spinDur = 1650;
+      live.push(wrap.animate([
+        { transform: 'translateY(0px) rotate(0deg) scale(1)' },
+        { transform: 'translateY(8px) rotate(-30deg) scale(1.08,.88)', offset: .1, easing: 'cubic-bezier(.4,0,.7,.6)' },
+        { transform: 'translateY(-48px) rotate(1080deg) scale(1.2)', offset: .7, easing: 'ease-out' },
+        { transform: 'translateY(-56px) rotate(1095deg) scale(1.22)', offset: .8, easing: 'cubic-bezier(.6,0,1,.5)' },
+        { transform: `translateY(${DROP}px) rotate(1080deg) scale(1.15,.82)` },
+      ], { duration: spinDur, fill: 'forwards' }));
+      const trail = setInterval(() => {                             // sparks fly off while it spins
+        const p = mapPoint(50, 60);
+        burst(p.x, p.y, 6, FIRE, { power: 1.1 });
+      }, 50);
+      await wait(spinDur * .78);
+      clearInterval(trail);
+      await wait(spinDur * .22);
+
+      // 3. impact → explode
+      const c = mapPoint(50, 70);
+      root.animate(jitter(10, 9, 2, .4), { duration: 420, easing: 'linear' });            // whole thing shakes on impact
+      flash.animate([
+        { opacity: 0, transform: `translateY(${DROP}px) scale(.3)` },
+        { opacity: 1, transform: `translateY(${DROP}px) scale(1.1)`, offset: .2 },
+        { opacity: 0, transform: `translateY(${DROP}px) scale(2)` },
+      ], { duration: 650, easing: 'ease-out' });
+      wave.animate([
+        { transform: `translateY(${DROP}px) scale(.5)`, opacity: 1 },
+        { transform: `translateY(${DROP}px) scale(2.6)`, opacity: 0 },
+      ], { duration: 800, easing: 'cubic-bezier(.2,.8,.2,1)' });
+      live.push(wrap.animate([
+        { transform: `translateY(${DROP}px) scale(1.15,.82)`, opacity: 1 },
+        { transform: `translateY(${DROP}px) scale(1.9)`, opacity: 0 },
+      ], { duration: 260, easing: 'cubic-bezier(.3,0,.6,1)', fill: 'forwards' }));
+      burst(c.x, c.y, milestone ? 140 : 100, FIRE.concat('#ffffff'), { power: 2.2, kinds: ['shard', 'shard', 'spark', 'dot'] });
+      await wait(250);
+
+      // 4. flowers fall
+      Rain.spawn(milestone ? 200 : 110);
+      await wait(550);
+
+      // 5. reveal the number
+      renderCount(next, true);
+      setState('shown');
+      if (milestone) showToast(`🎉 ${fmt(prevMilestone(next))}-day milestone!`);
+
+      // 6. flame pops back
+      live.forEach(a => a.cancel());
+      const grow = wrap.animate([
+        { transform: 'scale(.1) rotate(-200deg)', opacity: 0 },
+        { transform: 'scale(1.18) rotate(10deg)', opacity: 1, offset: .6 },
+        { transform: 'scale(.95) rotate(-4deg)', opacity: 1, offset: .8 },
+        { transform: 'scale(1) rotate(0deg)', opacity: 1 },
+      ], { duration: 800, easing: 'cubic-bezier(.3,1.2,.5,1)' });
+      await grow.finished.catch(() => {});
+    }
+
+    async function step(next, prev, o) {
+      if (next < prev || reduce || o.animate === false) {
+        renderCount(next, false);
+        setState(next === 0n ? 'hidden' : 'shown');
+        return;
+      }
+      return sequence(next, nextMilestone(prev) <= next);
+    }
+
+    let value = 0n, target = 0n, running = null, lastOpts = {};
+    function drive(o) {
+      lastOpts = o || {};
+      if (!running) {
+        running = (async () => {
+          try {
+            while (target !== value) { const prev = value, next = target; value = next; await step(next, prev, lastOpts); }
+          } finally { running = null; }
+        })();
+      }
+      return running;
+    }
+
+    // initial paint
+    value = target = opts.value != null ? BigInt(opts.value) : 0n;
+    if (value < 0n) value = target = 0n;
+    renderCount(value, false);
+    setState(opts.hidden === false ? 'shown' : 'hidden');
+
+    return {
+      get value() { return value; },
+      get busy() { return !!running; },
+      increment(by = 1, o) { target = target + BigInt(by); return drive(o); },
+      set(n, o) { n = BigInt(n); target = n < 0n ? 0n : n; return drive(o); },
+      reset() { target = 0n; return drive({ animate: false }); },
+      reveal() {
+        if (running || value === 0n) return running || Promise.resolve();
+        running = sequence(value, false).finally(() => { running = null; });
+        return running;
+      },
+    };
+  }
+
+  window.Streakify = { create };
+})();
+/* =================== END COMPONENT =================== */
+
+/* Page wiring */
+
+/* Page wiring */
+const streak = Streakify.create(
+    document.getElementById('streak'),
+    { value: localStorage.getItem('streak_count') || 0 }
+);
+
+const completeBtn = document.getElementById('complete');
+
+// Find the most recent midday
+function getMostRecent12PM() {
+    const now = new Date();
+    const target = new Date();
+
+    target.setHours(12, 0, 0, 0);
+
+    if (now < target) {
+        target.setDate(target.getDate() - 1);
+    }
+
+    return target.getTime();
+}
+
+// Check whether today's completion has already been used
+function updateButton() {
+    const lastRun = Number(
+        localStorage.getItem('last_executed_time') || 0
+    );
+
+    const resetTime = getMostRecent12PM();
+    const alreadyCompleted = lastRun >= resetTime;
+
+    completeBtn.disabled = alreadyCompleted;
+
+    if (alreadyCompleted) {
+        completeBtn.textContent = 'Completed Today ✓';
+    } else {
+        completeBtn.textContent = 'Complete';
+    }
+}
+
+// Handle the Complete button
+completeBtn.onclick = async () => {
+    if (streak.busy) return;
+
+    const lastRun = Number(
+        localStorage.getItem('last_executed_time') || 0
+    );
+
+    if (lastRun >= getMostRecent12PM()) {
+        updateButton();
+        return;
+    }
+
+    // Save immediately to prevent another completion
+    localStorage.setItem(
+        'last_executed_time',
+        Date.now().toString()
+    );
+
+    completeBtn.disabled = true;
+    completeBtn.textContent = 'Completed Today ✓';
+
+    try {
+        await streak.increment();
+
+        localStorage.setItem(
+            'streak_count',
+            streak.value.toString()
+        );
+    } catch (error) {
+        console.error('Streak animation failed:', error);
+    }
+};
+
+// Set the correct button state when the page opens
+updateButton();
+
+// Recheck periodically so the button unlocks after midday
+setInterval(updateButton, 10000);
+
+</script>
+</body>
+</html>
